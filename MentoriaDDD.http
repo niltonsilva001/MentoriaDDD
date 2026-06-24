@@ -1,0 +1,33 @@
+@MentoriaDDD_HostAddress = http://localhost:5157
+
+GET {{MentoriaDDD_HostAddress}}/api/clientes
+Accept: application/json
+
+###
+
+POST {{MentoriaDDD_HostAddress}}/api/clientes
+Content-Type: application/json
+
+{
+  "nome": "Ana Silva",
+  "email": "ana@email.com"
+}
+
+###
+
+GET {{MentoriaDDD_HostAddress}}/api/clientes/1
+Accept: application/json
+
+###
+
+PUT {{MentoriaDDD_HostAddress}}/api/clientes/1
+Content-Type: application/json
+
+{
+  "nome": "Ana Souza",
+  "email": "ana.souza@email.com"
+}
+
+###
+
+DELETE {{MentoriaDDD_HostAddress}}/api/clientes/1
