@@ -18,14 +18,14 @@ namespace MentoriaDDD.Controllers
         [HttpGet("ObterTodos")]
         public async Task<IActionResult> ObterTodos()
         {
-            var clientes = await _clienteService.ObterTodos();
+            var clientes = await _clienteService.ObterTodosAsync();
             return Ok(clientes);
         }
 
         [HttpGet("ObterPorId/{id}")]
         public async Task<IActionResult> ObterPorId(int id)
         {
-            var cliente = await _clienteService.ObterPorId(id);
+            var cliente = await _clienteService.ObterPorIdAsync(id);
 
             return cliente is null
                 ? NotFound(new { mensagem = "Cliente nao encontrado." })
@@ -42,7 +42,7 @@ namespace MentoriaDDD.Controllers
                 return BadRequest(new { mensagem = "CPF invalido." });
             }
 
-            var cliente = await _clienteService.ObterPorCPF(cpfLimpo);
+            var cliente = await _clienteService.ObterPorCPFAsync(cpfLimpo);
 
             return cliente is null
                 ? NotFound(new { mensagem = "Cliente nao encontrado." })
@@ -52,7 +52,7 @@ namespace MentoriaDDD.Controllers
         [HttpPost("CriarCliente")]
         public async Task<IActionResult> CriarCliente(CriarClienteRequest request)
         {
-            var resultado = await _clienteService.Criar(request);
+            var resultado = await _clienteService.CriarAsync(request);
             if (!resultado.Sucesso)
             {
                 return BadRequest(new { mensagem = resultado.Erro });
@@ -67,7 +67,7 @@ namespace MentoriaDDD.Controllers
         [HttpPut("AtualizarCliente/{id}")]
         public async Task<IActionResult> AtualizarCliente(int id, AtualizarClienteRequest request)
         {
-            var resultado = await _clienteService.Atualizar(id, request);
+            var resultado = await _clienteService.AtualizarAsync(id, request);
 
             if (!resultado.Sucesso)
             {
@@ -82,7 +82,7 @@ namespace MentoriaDDD.Controllers
         [HttpDelete("RemoverCliente/{id}")]
         public async Task<IActionResult> RemoverCliente(int id)
         {
-            var removido = await _clienteService.Remover(id);
+            var removido = await _clienteService.RemoverAsync(id);
 
             return removido ? NoContent() : NotFound(new { mensagem = "Cliente nao encontrado." });
         }

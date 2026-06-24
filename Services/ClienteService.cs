@@ -1,16 +1,21 @@
 using MentoriaDDD.Dtos;
 using MentoriaDDD.Models;
 using MentoriaDDD.Repositories.Interfaces;
+using MentoriaDDD.Validador;
 
 namespace MentoriaDDD.Services;
 
 public class ClienteService : IClienteService
 {
     private readonly IClienteRepository _clienteRepository;
+    private readonly CriarClienteValidador _criarClienteValidador;
+    private readonly AtualizarClienteValidador _atualizarClienteValidador;
 
     public ClienteService(IClienteRepository clienteRepository)
     {
         _clienteRepository = clienteRepository;
+        _criarClienteValidador = new CriarClienteValidador();
+        _atualizarClienteValidador = new AtualizarClienteValidador();
     }
 
     public async Task<IReadOnlyCollection<ClienteResponse>> ObterTodosAsync()
@@ -35,11 +40,11 @@ public class ClienteService : IClienteService
 
     public async Task<Resultado<ClienteResponse>> CriarAsync(CriarClienteRequest request)
     {
-        var erroValidacao = ValidarDados(request.Nome, request.Email, request.CPF);
+        var erroValidacao = _criarClienteValidador.Validate(request);
 
-        if (erroValidacao is not null)
+        if (!erroValidacao.IsValid)
         {
-            return Resultado<ClienteResponse>.Falha(erroValidacao);
+            return Resultado<ClienteResponse>.Falha(erroValidacao.Errors.First().ErrorMessage);
         }
 
         var clienteComMesmoEmail = await _clienteRepository.ObterPorEmailAsync(request.Email);
@@ -75,11 +80,11 @@ public class ClienteService : IClienteService
             return Resultado<ClienteResponse>.Falha("Cliente nao encontrado.");
         }
 
-        var erroValidacao = ValidarDados(request.Nome, request.Email, request.CPF);
+        var erroValidacao = _atualizarClienteValidador.Validate(request);
 
-        if (erroValidacao is not null)
+        if (!erroValidacao.IsValid)
         {
-            return Resultado<ClienteResponse>.Falha(erroValidacao);
+            return Resultado<ClienteResponse>.Falha(erroValidacao.Errors.First().ErrorMessage);
         }
 
         var clienteComMesmoEmail = await _clienteRepository.ObterPorEmailAsync(request.Email);
@@ -114,43 +119,6 @@ public class ClienteService : IClienteService
 
         await _clienteRepository.RemoverAsync(cliente);
         return true;
-    }
-
-    private static string? ValidarDados(string nome, string email, string cpf)
-    {
-        if (string.IsNullOrWhiteSpace(nome))
-        {
-            return "Nome e obrigatorio.";
-        }
-
-        if (nome.Trim().Length < 3)
-        {
-            return "Nome deve ter pelo menos 3 caracteres.";
-        }
-
-        if (string.IsNullOrWhiteSpace(email))
-        {
-            return "E-mail e obrigatorio.";
-        }
-
-        if (!email.Contains('@'))
-        {
-            return "E-mail invalido.";
-        }
-
-        if (string.IsNullOrWhiteSpace(cpf))
-        {
-            return "CPF e obrigatorio.";
-        }
-
-        var cpfLimpo = cpf.Trim();
-
-        if (cpfLimpo.Length != 11 || !long.TryParse(cpfLimpo, out _))
-        {
-            return "CPF invalido.";
-        }
-
-        return null;
     }
 
     private static ClienteResponse MapearParaResponse(Cliente cliente)

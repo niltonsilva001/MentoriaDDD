@@ -1,3 +1,6 @@
 <Solution>
   <Project Path="MentoriaDDD.csproj" />
+  <Project Path="MentoriaDDD.Tests/MentoriaDDD.Tests.csproj">
+    <Build Solution="Debug|*" Project="false" />
+  </Project>
 </Solution>
